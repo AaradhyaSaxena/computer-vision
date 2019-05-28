@@ -10,7 +10,7 @@ from sklearn import linear_model, datasets
 
 
 #takes input image shape=(num_points,2); obj shape=(num_points,3)
-def projection_matrix(imgp1, objp):
+def projection_matrix_direct(imgp1, objp):
 
     imgp = np.ones((315,3))
     imgp[:,0] = imgp1[:,0]
@@ -27,6 +27,27 @@ def projection_matrix(imgp1, objp):
     camera_matrix = np.matmul(imgp,abc)
     
     return camera_matrix
+
+
+def projection_matrix(img_p, obj_p):
+    
+    C = []
+
+    for i in range(315):
+        C.append(np.array([obj_p[i,0], obj_p[i,1],1,0,0,0, (-1)*obj_p[i,0]*img_p[i,0], 
+                           (-1)*obj_p[i,1]*img_p[i,0], (-1)*img_p[i,0]]))
+        C.append(np.array([0,0,0, obj_p[i,0], obj_p[i,1],1, 
+                           (-1)*obj_p[i,0]*img_p[i,1], (-1)*obj_p[i,1]*img_p[i,1],(-1)*img_p[i,1]]))
+    
+    c = np.array(C)
+    ctc = np.matmul(c.T,c)
+    u, s, vh = np.linalg.svd(ctc, full_matrices=True)
+    L = vh[-1]
+    H = L.reshape(3, 3)
+    H = H/H[-1,-1]
+    
+    return H
+
 
 
 #returns (num_corners,2)
@@ -58,9 +79,11 @@ def return_objpoints():
 
     
 
-    
+"""   
 img_p=return_imagepoints()
 obj_p=return_objpoints()
 P=projection_matrix(img_p,obj_p)
 
 print(P)
+"""
+
