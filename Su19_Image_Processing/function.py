@@ -7,6 +7,7 @@ import math
 from scipy import linalg
 from numpy.linalg import inv
 from sklearn import linear_model, datasets
+from numpy import linalg as LA
 
 
 # output = 3x3 projection_matrix, input image shape=(num_points,2); obj shape=(num_points,3)
@@ -54,21 +55,42 @@ def projection_matrix4(img_p, obj_p):
     C = []
 
     for i in range(315):
-        C.append(np.array([obj_p[i,0], obj_p[i,1],1,0,0,0, (-1)*obj_p[i,0]*img_p[i,0], 
-                           (-1)*obj_p[i,1]*img_p[i,0], (-1)*img_p[i,0]]))
-        C.append(np.array([0,0,0, obj_p[i,0], obj_p[i,1],1, 
-                           (-1)*obj_p[i,0]*img_p[i,1], (-1)*obj_p[i,1]*img_p[i,1],(-1)*img_p[i,1]]))
+        C.append(np.array([obj_p[i,0], obj_p[i,1], obj_p[i,2],1,0,0,0,0,(-1)*obj_p[i,0]*img_p[i,0], 
+                           (-1)*obj_p[i,1]*img_p[i,0],(-1)*obj_p[i,2]*img_p[i,0], (-1)*img_p[i,0]]))
+        
+        C.append(np.array([0,0,0,0, obj_p[i,0], obj_p[i,1], obj_p[i,2],1,(-1)*obj_p[i,0]*img_p[i,1], 
+                           (-1)*obj_p[i,1]*img_p[i,1], (-1)*obj_p[i,2]*img_p[i,1],(-1)*img_p[i,1]]))
     
     c = np.array(C)
     ctc = np.matmul(c.T,c)
     u, s, vh = np.linalg.svd(ctc, full_matrices=True)
-    L = vh[-1]
-    H = L.reshape(3, 3)
+    L = vh[-2]
+    H = L.reshape(3, 4)
+    
+    norm0 = LA.norm(H,axis=0)
+    H = H/norm0
+    
+#     norm1 = LA.norm(H,axis=1)
+#     for i in range(3):
+#         H[i]= H[i]/norm1[i]
+    
     H = H/H[-1,-1]
     
     return H
 
-
+# returns k,r1,r2 ; takes input of projection_matrix(3,4)
+def RQ_decomposition(projection_matrix4):
+    
+    p1 = projection_matrix4[:,:3]
+    p2 = projection_matrix4[:,3]
+    
+    k, r1 = linalg.rq(p1)
+    np.allclose(p1, k @ r1)
+    k = k/k[-1,-1]
+    
+    r2 = np.matmul(inv(k),p2)
+    
+    return k,r1,r2
 
 #returns (num_corners,2)
 def return_imagepoints(image_path="./a.png"):
@@ -120,11 +142,11 @@ def homo_obj4(obj_p):
     
     return obj_homo4    
 
-
+"""
 img_p=return_imagepoints()
 obj_p=return_objpoints()
 P=projection_matrix3(img_p,obj_p)
 
 print(P)
-
+"""
 
