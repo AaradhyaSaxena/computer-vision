@@ -1,6 +1,6 @@
 import numpy as np
 
-
+# Here real data is the object co-ordinates, whereas the image points are the sensed co-ordinates
 def parse_data(basepath="data/corners_", ext=".dat"):
 
     sensed = []
