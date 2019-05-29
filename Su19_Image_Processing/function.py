@@ -93,7 +93,7 @@ def RQ_decomposition(projection_matrix4):
     return k,r1,r2
 
 #returns (num_corners,2)
-def return_imagepoints(image_path="./a.png"):
+def return_imagepoints(image_path="./a2.png"):
     img = cv2.imread(image_path)
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     
@@ -110,7 +110,20 @@ def return_imagepoints(image_path="./a.png"):
         imgpt[:,1] = corners[:,0,1]
         
         return imgpt, corners
+
+
+# returns projection of a point in image plane, arg: p(3,4) and obj list len=3;
+def img_projection(projection_matrix, obj_p):
     
+    length = obj_p.shape[0]
+    new_var = np.ones((length,4))
+    new_var[:,:3] = obj_p
+    
+    img_p = np.matmul(projection_matrix, new_var.T)
+#     img_p = img_p/img_p[-1]
+    
+    return img_p
+
 
 #returns (num_obj,3)
 def return_objpoints():
