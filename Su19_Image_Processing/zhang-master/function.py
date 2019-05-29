@@ -109,7 +109,7 @@ def return_imagepoints(image_path="./a.png"):
         imgpt[:,0] = corners[:,0,0]
         imgpt[:,1] = corners[:,0,1]
         
-        return imgpt, corners
+        return imgpt
     
 
 #returns (num_obj,3)
