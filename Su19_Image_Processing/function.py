@@ -54,7 +54,7 @@ def projection_matrix4(img_p, obj_p):
     
     C = []
 
-    for i in range(315):
+    for i in range(obj_p.shape[0]):
         C.append(np.array([obj_p[i,0], obj_p[i,1], obj_p[i,2],1,0,0,0,0,(-1)*obj_p[i,0]*img_p[i,0], 
                            (-1)*obj_p[i,1]*img_p[i,0],(-1)*obj_p[i,2]*img_p[i,0], (-1)*img_p[i,0]]))
         
@@ -66,15 +66,8 @@ def projection_matrix4(img_p, obj_p):
     u, s, vh = np.linalg.svd(ctc, full_matrices=True)
     L = vh[-2]
     H = L.reshape(3, 4)
-    
-    norm0 = LA.norm(H,axis=0)
-    H = H/norm0
-    
-#     norm1 = LA.norm(H,axis=1)
-#     for i in range(3):
-#         H[i]= H[i]/norm1[i]
-    
-    H = H/H[-1,-1]
+
+#     H = H/H[-1,-1]
     
     return H
 
@@ -93,24 +86,45 @@ def RQ_decomposition(projection_matrix4):
     return k,r1,r2
 
 #returns (num_corners,2)
-def return_imagepoints(image_path="./a2.png"):
+def return_imagepoints(image_path,grid):
+    grid_x,grid_y=grid
     img = cv2.imread(image_path)
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     
     # Find the chess board corners
-    ret, corners = cv2.findChessboardCorners(gray, (21,15),None)
+    ret, corners = cv2.findChessboardCorners(gray, (grid_x,grid_y),None)
     if(ret==False):
         print("image/corner doesnt exist")
     else:
         # termination criteria
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
         cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
-        imgpt = np.ones((21*15,2))
+        imgpt = np.ones((grid_x*grid_y,2))
         imgpt[:,0] = corners[:,0,0]
         imgpt[:,1] = corners[:,0,1]
         
         return imgpt, corners
 
+    #returns (num_corners,2)
+def return_imgGreypoints(gray,grid):
+    grid_x,grid_y=grid
+    # gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    
+    # Find the chess board corners
+    ret, corners = cv2.findChessboardCorners(gray, (grid_x,grid_y),None)
+    if(ret==False):
+        print("image/corner doesnt exist")
+        return ret,None, None
+
+    else:
+        # termination criteria
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+        cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
+        imgpt = np.ones((grid_x*grid_y,2))
+        imgpt[:,0] = corners[:,0,0]
+        imgpt[:,1] = corners[:,0,1]
+        
+        return ret,imgpt, corners
 
 # returns projection of a point in image plane, arg: p(3,4) and obj list len=3;
 def img_projection(projection_matrix, obj_p):
@@ -126,11 +140,13 @@ def img_projection(projection_matrix, obj_p):
 
 
 #returns (num_obj,3)
-def return_objpoints():
-    objp = np.zeros((21*15,3), np.float32)
-    objp[:,:2] = np.mgrid[0:21,0:15].T.reshape(-1,2)
+def return_objpoints(grid):
+    grid_x,grid_y=grid
+    objp = np.zeros((grid_x*grid_y,3), np.float32)
+    objp[:,:2] = np.mgrid[0:grid_y,0:grid_x].T.reshape(-1,2)
 
     return objp
+
 
 
 def homo_img(img_p):
