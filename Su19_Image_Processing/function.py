@@ -11,17 +11,9 @@ from numpy import linalg as LA
 
 
 # output = 3x3 projection_matrix, input image shape=(num_points,2); obj shape=(num_points,3)
-def projection_matrix_direct(imgp1, objp):
-
-    imgp = np.ones((315,3))
-    imgp[:,0] = imgp1[:,0]
-    imgp[:,1] = imgp1[:,1]
-    imgp = imgp.T
-
-    objp = (objp.T).reshape((3,315))
-    obj = np.ones((3,315))
-    obj[:2,:] = objp[:2,:]
+def projection_matrix_direct(imgp, objp):
     
+    obj = objp.T
     ab = np.matmul(obj,obj.T)
     abinv = inv(ab)
     abc = np.matmul(obj.T,abinv)
@@ -67,7 +59,7 @@ def projection_matrix4(img_p, obj_p):
     L = vh[-2]
     H = L.reshape(3, 4)
 
-#     H = H/H[-1,-1]
+    H = H/H[-1,-1]
     
     return H
 
@@ -106,7 +98,7 @@ def return_imagepoints(image_path,grid):
         return imgpt, corners
 
     #returns (num_corners,2)
-def return_imgGreypoints(gray,grid):
+def return_imgGraypoints(gray,grid):
     grid_x,grid_y=grid
     # gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     
@@ -143,7 +135,7 @@ def img_projection(projection_matrix, obj_p):
 def return_objpoints(grid):
     grid_x,grid_y=grid
     objp = np.zeros((grid_x*grid_y,3), np.float32)
-    objp[:,:2] = np.mgrid[0:grid_y,0:grid_x].T.reshape(-1,2)
+    objp[:,:2] = np.mgrid[0:grid_x,0:grid_y].T.reshape(-1,2)
 
     return objp
 
