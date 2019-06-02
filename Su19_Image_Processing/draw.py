@@ -10,9 +10,9 @@ from numpy import linalg as LA
 from sklearn import linear_model, datasets
 from utils import *
 
-grid_x=21
-grid_y=15
-grid=(21,15)
+grid_x=6
+grid_y=4
+grid=(grid_x,grid_y)
 
 objpoints = [] 
 imgpoints = []
@@ -25,7 +25,7 @@ while(True):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
  
         obj_pt3x4 = return_objpoints(grid)
-        ret,img_pt, corners = return_imgGreypoints(gray,grid)
+        ret,img_pt, corners = return_imgGraypoints(gray,grid)
         if(not ret):
             cv2.imshow('frame',gray)
             if cv2.waitKey(10) & 0xFF == ord('q'):

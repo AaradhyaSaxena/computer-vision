@@ -97,11 +97,11 @@ def return_imagepoints(image_path,grid):
         
         return imgpt, corners
 
-    #returns (num_corners,2)
+#returns (num_corners,2)
 def return_imgGraypoints(gray,grid):
     grid_x,grid_y=grid
     # gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    
+
     # Find the chess board corners
     ret, corners = cv2.findChessboardCorners(gray, (grid_x,grid_y),None)
     if(ret==False):

@@ -1,9 +1,3 @@
-
-# coding: utf-8
-
-# In[1]:
-
-
 import numpy as np
 from matplotlib import pyplot as plt
 import cv2
@@ -15,10 +9,6 @@ from numpy.linalg import inv
 from numpy import linalg as LA
 from sklearn import linear_model, datasets
 from function import *
-
-
-# In[2]:
-
 
 grid_x=21
 grid_y=15
@@ -66,9 +56,6 @@ while(True):
         cv2.destroyAllWindows()
 
 
-# In[6]:
-
-
-cap.release()
-cv2.destroyAllWindows()
+# cap.release()
+# cv2.destroyAllWindows()
 

@@ -1,9 +1,3 @@
-
-# coding: utf-8
-
-# In[1]:
-
-
 import numpy as np
 from matplotlib import pyplot as plt
 import cv2
@@ -14,12 +8,6 @@ from scipy import linalg
 from numpy.linalg import inv
 from sklearn import linear_model, datasets
 from function import *
-
-
-# To capture images from webcam
-
-# In[2]:
-
 
 # cam = cv2.VideoCapture(0)
 # cv2.namedWindow("test")
@@ -45,34 +33,11 @@ from function import *
 # #         img_counter += 1
 
 # cam.release()
-
 # cv2.destroyAllWindows()
-
-
-# Taking the image from the opencv webstite, as the object-3d-coordinates are mentioned for those pics
-
-# In[3]:
-
 
 # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
 objp = np.zeros((21*15,3), np.float32)
 objp[:,:2] = np.mgrid[0:21,0:15].T.reshape(-1,2)
-
-
-# In[4]:
-
-
-# objp
-
-
-# In[5]:
-
-
-objp.shape
-
-
-# In[6]:
-
 
 # Arrays to store object points and image points from all the images.
 objpoints = [] # 3d point in real world space
@@ -105,41 +70,18 @@ for fname in images:
     
 cv2.destroyAllWindows()
 
-
-# In[7]:
-
-
 corners = corners.reshape((315,2))
-corners.shape
-
-
-# In[8]:
-
 
 x_mean = np.mean(corners[:,0])
 y_mean = np.mean(corners[:,1])
 print("x_mean",x_mean)
 print("y_mean",y_mean)
 
-
-# In[9]:
-
-
 img = cv2.imread("a2.png", cv2.IMREAD_GRAYSCALE)
 implot = plt.imshow(img)
 
 plt.scatter(x=corners[:5,0], y=corners[:5,1], c='r', s=40)
-
 plt.show()
-
-
-# In[10]:
-
-
-# corners
-
-
-# In[12]:
 
 
 # Need some co-ordinates
@@ -174,18 +116,7 @@ pcv = cv_homography/cv_homography[-1,-1]
 # This is for our k-matrix
 _p = projection_matrix4(img_pt,obj_pt4)
 
-
-# In[13]:
-
-
 proj_cv = img_projection(pcv, np.array([[0,0,10],[0,0,0],[10,0,0],[0,10,0]]))
-
-# proj_cv = img_projection(_p, obj_p4[:,42][:3])
-proj_cv
-
-
-# In[14]:
-
 
 img = cv2.imread("a2.png", cv2.IMREAD_GRAYSCALE)
 
@@ -198,75 +129,45 @@ cv2.line(img,(int(proj_cv[0,3]),int(proj_cv[1,3])),(int(proj_cv[0,1]),int(proj_c
 # cv2.line(img,(int(proj_cv[0,4]),int(proj_cv[1,4])),(int(proj_cv[0,1]),int(proj_cv[1,1])),(0,255,0),5)
 # cv2.line(img,(int(proj_cv[0,3]),int(proj_cv[1,3])),(int(proj_cv[0,4]),int(proj_cv[1,4])),(0,255,0),5)
 plt.imshow(img)
-
-
 plt.show()
-
-
-# In[15]:
-
 
 p = img_projection(_p,obj_p[:5,:])
 print(p,'\n')
 
-
-# In[16]:
-
-
-img_p[:,:5]
-
-
 # -------------------------------
 
-# ## **Undistortion**
+# # ## **Undistortion**
+# img = cv2.imread('chess1.jpg')
+# h, w = img.shape[:2]
+# newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
 
-# In[ ]:
+# # We have got what we were trying. Now we can take an image and undistort it.
+# # undistort
+# dst = cv2.undistort(img, mtx, dist, None, newcameramtx)
 
-
-img = cv2.imread('chess1.jpg')
-h, w = img.shape[:2]
-newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
-
-
-# We have got what we were trying. Now we can take an image and undistort it.
-
-# In[ ]:
-
-
-# undistort
-dst = cv2.undistort(img, mtx, dist, None, newcameramtx)
-
-# crop the image
-x,y,w,h = roi
-dst = dst[y:y+h, x:x+w]
-cv2.imwrite('calibresult.png',dst)
+# # crop the image
+# x,y,w,h = roi
+# dst = dst[y:y+h, x:x+w]
+# cv2.imwrite('calibresult.png',dst)
 
 
-# USE REMAPPING
-
-# In[ ]:
-
-
-# undistort
-mapx,mapy = cv2.initUndistortRectifyMap(mtx,dist,None,newcameramtx,(w,h),5)
-dst = cv2.remap(img,mapx,mapy,cv2.INTER_LINEAR)
+# # USE REMAPPING
+# # undistort
+# mapx,mapy = cv2.initUndistortRectifyMap(mtx,dist,None,newcameramtx,(w,h),5)
+# dst = cv2.remap(img,mapx,mapy,cv2.INTER_LINEAR)
  
-# crop the image
-x,y,w,h = roi
-dst = dst[y:y+h, x:x+w]
-cv2.imwrite('calibresult.png',dst)
+# # crop the image
+# x,y,w,h = roi
+# dst = dst[y:y+h, x:x+w]
+# cv2.imwrite('calibresult.png',dst)
 
 
-# REPROJECTION ERROR
+# # REPROJECTION ERROR
+# mean_error = 0
+# for i in xrange(len(objpoints)):
+#     imgpoints2, _ = cv2.projectPoints(objpoints[i], rvecs[i], tvecs[i], mtx, dist)
+#     error = cv2.norm(imgpoints[i],imgpoints2, cv2.NORM_L2)/len(imgpoints2)
+#     tot_error += error
 
-# In[ ]:
-
-
-mean_error = 0
-for i in xrange(len(objpoints)):
-    imgpoints2, _ = cv2.projectPoints(objpoints[i], rvecs[i], tvecs[i], mtx, dist)
-    error = cv2.norm(imgpoints[i],imgpoints2, cv2.NORM_L2)/len(imgpoints2)
-    tot_error += error
-
-print "total error: ", mean_error/len(objpoints)
+# print "total error: ", mean_error/len(objpoints)
 
