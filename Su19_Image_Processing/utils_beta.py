@@ -8,6 +8,7 @@ from scipy import linalg
 from numpy.linalg import inv
 from sklearn import linear_model, datasets
 from numpy import linalg as LA
+from utils import *
 
 
 def return_pcv(img_path, corners_, obj_p):
@@ -46,4 +47,33 @@ def return_fundamentalM(P1, P2):
 	F = np.matmul(np.matmul(inv(A1).T , Sb) ,inv(A2))
 
 	return F
+
+def errorFundamental(F,img_pt1, img_pt2):
+	x1 = homo_img(img_pt1)
+	x2 = homo_img(img_pt2)
+
+	w = np.matmul(np.kron(x2,x1).T, F.reshape((9,1)))
+	print(w.shape)
+	w1 = np.sum(w)
+
+	return w1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

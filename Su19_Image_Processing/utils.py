@@ -85,24 +85,6 @@ def return_pcv(img_path, corners_, obj_p):
     return pcv
 
 
-# returns fundamental_matrix; inputs 3x4 P1 and P2
-def return_fundamentalM(P1, P2):
-    A1 = P1[:,:3]
-    a1 = P1[:,3]
-
-    A2 = P2[:,:3]
-    a2 = P2[:,3]
-
-    b = np.matmul(inv(A2),a2) - np.matmul(inv(A1),a1)
-    Sb = [0,(-1)*b[2],b[1],b[2],0,(-1)*b[0],(-1)*b[1],b[0],0]
-    Sb = np.array(Sb)
-    Sb = Sb.reshape((3,3))
-
-    F = np.matmul(np.matmul(inv(A1).T , Sb) ,inv(A2))
-
-    return F
-
-
 # returns k,r1,r2 ; takes input of projection_matrix(3,4)
 def RQ_decomposition(projection_matrix4):
     
