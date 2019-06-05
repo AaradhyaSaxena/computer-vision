@@ -48,6 +48,7 @@ def return_fundamentalM(P1, P2):
 
 	return F
 
+# 
 def errorFundamental(F,img_pt1, img_pt2):
 	x1 = homo_img(img_pt1)
 	x2 = homo_img(img_pt2)
@@ -58,7 +59,22 @@ def errorFundamental(F,img_pt1, img_pt2):
 
 	return w1
 
+# homo_im and homo_ob are numpy array
+def essential_matrix(homo_im,homo_ob):
+	A = np.hstack(((homo_im[1,:,0,0]*homo_im[0,:,0,0]).reshape((315,1)),
+		(homo_im[1,:,0,0]*homo_im[0,:,0,1]).reshape((315,1)),
+		homo_im[1,:,0,0].reshape((315,1)),(homo_im[1,:,0,1]*homo_im[0,:,0,0]).reshape((315,1)),
+		(homo_im[1,:,0,1]*homo_im[0,:,0,1]).reshape((315,1)),
+		homo_im[1,:,0,1].reshape((315,1)),homo_im[0,:,0,0].reshape((315,1)),
+		homo_im[0,:,0,1].reshape((315,1)),np.ones((315,1))))
+	
+	ata = np.matmul(A.T,A)
+	u, s, vh = np.linalg.svd(ata, full_matrices=True)
+	L = vh[-1]
+	H = L.reshape(3, 3)
+	H = H/H[-1,-1]
 
+	return H
 
 
 
