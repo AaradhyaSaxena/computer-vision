@@ -76,6 +76,14 @@ def essential_matrix(homo_im,homo_ob):
 
 	return H
 
+# takes in 3x3 essential matrix
+def returnT_fromE(e):
+	ete = np.matmul(e.T,e)
+	u, s, vh = np.linalg.svd(ete, full_matrices=True)
+	H = vh[-1]
+	H = H/H[-1]
+
+	return H
 
 
 
