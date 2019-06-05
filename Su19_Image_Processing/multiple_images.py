@@ -21,6 +21,7 @@ x,y=np.meshgrid(range(grid_x),range(grid_y))
 
 world_points=np.hstack((x.reshape(grid_x*grid_y,1),y.reshape(grid_x*grid_y,1),np.zeros((grid_x*grid_y,1)))).astype(np.float32)
 
+# p1 = "\images"
 img_paths=glob('*.png') #get paths of all all images
 for path in img_paths:
     im=cv2.imread(path)
