@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 import cv2
-import glob
+from glob import glob
 
 import math
 from scipy import linalg
@@ -84,6 +84,18 @@ def return_pcv(img_path, corners_, obj_p):
 
     return pcv
 
+def returnP_fromK(mtx,rvecs,tvecs):
+    rx = [[1,0,0],[0,math.cos(rvecs[0][0]),math.sin(rvecs[0][0])],[0,(-1)*math.sin(rvecs[0][0]),math.cos(rvecs[0][0])]]
+    ry = [[math.cos(rvecs[0][1]),0,math.sin(rvecs[0][1])],[0,1,0],[(-1)*math.sin(rvecs[0][1]),0,math.cos(rvecs[0][1])]]
+    rz = [[math.cos(rvecs[0][2]),math.sin(rvecs[0][2]),0],[(-1)*math.sin(rvecs[0][2]),math.cos(rvecs[0][2]),0],[0,0,1]]
+    R1 = np.matmul(rx,ry)
+    R = np.matmul(R1,rz)
+    m = np.ones((3,4))
+    m[:,:3] = R
+    m[:,[3]]= np.array(tvecs)
+    cv_homography = np.matmul(mtx,m)
+
+    return cv_homography
 
 # returns k,r1,r2 ; takes input of projection_matrix(3,4)
 def RQ_decomposition(projection_matrix4):
