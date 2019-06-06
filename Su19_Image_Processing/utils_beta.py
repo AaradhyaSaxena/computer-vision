@@ -80,16 +80,36 @@ def essential_matrix(homo_im,homo_ob):
 def returnT_fromE(e):
 	ete = np.matmul(e.T,e)
 	u, s, vh = np.linalg.svd(ete, full_matrices=True)
-	H = vh[-1]
-	H = H/H[-1]
+	v = vh.T
 
-	return H
+	return v[:,-1]
+
+def returnUV_fromE(e):
+	ete = np.matmul(e.T,e)
+	u, s, vh = np.linalg.svd(ete, full_matrices=True)
+	v = vh.T
+	# v = v/v[-1]
+
+	return u, v
 
 
+def returnP_fromE(e):
 
+	t = returnT_fromE(e)
+	tx = [[0,(-1)*t[2],t[1]],[t[2],0,(-1)*t[0]],[(-1)*t[1],t[0],0]]
+	u, v = returnUV_fromE(e)
+	z = np.array([[0,1,0],[-1,0,0],[0,0,0]])
+	w = np.array([[0,1,0],[-1,0,0],[0,0,1]])
+	d = np.array([[1,0,0],[0,1,0],[0,0,0]])
+	r1 = np.dot(u,np.dot(w.T,v.T))
+	r2 = np.dot(u,np.dot(w,v.T))
 
+	m1 = np.dot(r1,np.array([[1,0,0,t[0]],[0,1,0,t[1]],[1,0,0,t[2]]]))
+	m2 = np.dot(r1,np.array([[1,0,0,(-1)*t[0]],[0,1,0,(-1)*t[1]],[1,0,0,(-1)*t[2]]]))
+	m3 = np.dot(r2,np.array([[1,0,0,t[0]],[0,1,0,t[1]],[1,0,0,t[2]]]))
+	m4 = np.dot(r2,np.array([[1,0,0,(-1)*t[0]],[0,1,0,(-1)*t[1]],[1,0,0,(-1)*t[2]]]))
 
-
+	return m1, m2, m3, m4
 
 
 
