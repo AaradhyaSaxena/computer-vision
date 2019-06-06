@@ -37,12 +37,18 @@ for path in img_paths:
 
 ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(_3d_points, _2d_points, (im.shape[1],im.shape[0]),None,None)
 
+print(mtx)
+
 homo_im = np.array(_2d_points)
 homo_ob = np.array(_3d_points)
 
 e = essential_matrix(homo_im,homo_ob)
 
 t = returnT_fromE(e)
-print(t)
+tx = [[0,(-1)*t[2],t[1]],[t[2],0,(-1)*t[0]],[(-1)*t[1],t[0],0]]
 
+u, v = returnUV_fromE(e)
 
+m1,m2,m3,m4 = returnP_fromE(e)
+
+print(m1,m2,m3,m4)
