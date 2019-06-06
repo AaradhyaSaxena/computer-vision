@@ -51,4 +51,4 @@ u, v = returnUV_fromE(e)
 
 m1,m2,m3,m4 = returnP_fromE(e)
 
-print(m1,m2,m3,m4)
+# print(m1,m2,m3,m4)
