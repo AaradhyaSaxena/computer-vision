@@ -6,7 +6,7 @@ from glob import glob
 import math
 from scipy import linalg
 from numpy.linalg import inv
-from sklearn import linear_model, datasets
+# from sklearn import linear_model, datasets
 from numpy import linalg as LA
 
 

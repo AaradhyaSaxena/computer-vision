@@ -6,7 +6,7 @@ import glob
 import math
 from scipy import linalg
 from numpy.linalg import inv
-from sklearn import linear_model, datasets
+# from sklearn import linear_model, datasets
 from numpy import linalg as LA
 from utils import *
 
@@ -59,8 +59,27 @@ def errorFundamental(F,img_pt1, img_pt2):
 
 	return w1
 
-# homo_im and homo_ob are numpy array
-def essential_matrix(homo_im,homo_ob):
+# homo_im is numpy array
+def essential_matrix(homo_im):
+
+	length = homo_im.shape[1]
+	A = np.hstack(((homo_im[1,:,0]*homo_im[0,:,0]).reshape((length,1)),
+		(homo_im[1,:,0]*homo_im[0,:,1]).reshape((length,1)),
+		homo_im[1,:,0].reshape((length,1)),(homo_im[1,:,1]*homo_im[0,:,0]).reshape((length,1)),
+		(homo_im[1,:,1]*homo_im[0,:,1]).reshape((length,1)),
+		homo_im[1,:,1].reshape((length,1)),homo_im[0,:,0].reshape((length,1)),
+		homo_im[0,:,1].reshape((length,1)),np.ones((length,1))))
+	
+	ata = np.matmul(A.T,A)
+	u, s, vh = np.linalg.svd(ata, full_matrices=True)
+	L = vh[-1]
+	H = L.reshape(3, 3)
+	H = H/H[-1,-1]
+
+	return H
+
+# homo_im is numpy array
+def essential_matrix_cal(homo_im):
 	A = np.hstack(((homo_im[1,:,0,0]*homo_im[0,:,0,0]).reshape((315,1)),
 		(homo_im[1,:,0,0]*homo_im[0,:,0,1]).reshape((315,1)),
 		homo_im[1,:,0,0].reshape((315,1)),(homo_im[1,:,0,1]*homo_im[0,:,0,0]).reshape((315,1)),
@@ -92,6 +111,18 @@ def returnUV_fromE(e):
 
 	return u, v
 
+def returnR_fromE(e):
+
+	t = returnT_fromE(e)
+	tx = [[0,(-1)*t[2],t[1]],[t[2],0,(-1)*t[0]],[(-1)*t[1],t[0],0]]
+	u, v = returnUV_fromE(e)
+	z = np.array([[0,1,0],[-1,0,0],[0,0,0]])
+	w = np.array([[0,1,0],[-1,0,0],[0,0,1]])
+	d = np.array([[1,0,0],[0,1,0],[0,0,0]])
+	r1 = np.dot(u,np.dot(w.T,v.T))
+	r2 = np.dot(u,np.dot(w,v.T))
+
+	return r1,r2	
 
 def returnP_fromE(e):
 
