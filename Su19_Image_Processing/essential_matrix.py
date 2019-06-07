@@ -9,13 +9,14 @@ from glob import glob
 import math
 from scipy import linalg
 from numpy.linalg import inv
-from sklearn import linear_model, datasets
+# from sklearn import linear_model, datasets
 from utils import *
 from utils_beta import *
 
 
 _3d_points=[]
 _2d_points=[]
+
 
 grid_x = 21
 grid_y = 15
@@ -25,7 +26,7 @@ x,y=np.meshgrid(range(grid_x),range(grid_y))
 
 world_points=np.hstack((x.reshape(grid_x*grid_y,1),y.reshape(grid_x*grid_y,1),np.zeros((grid_x*grid_y,1)))).astype(np.float32)
 
-img_paths = ['opencv_frame_0.png','opencv_frame_1.png']
+img_paths = ['./cal_im/opencv_frame_0.png','./cal_im/opencv_frame_1.png']
 # img_paths=glob('*.png') #get paths of all all images
 for path in img_paths:
     im=cv2.imread(path)
@@ -36,19 +37,23 @@ for path in img_paths:
         _3d_points.append(world_points) #3D points are always the same
 
 ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(_3d_points, _2d_points, (im.shape[1],im.shape[0]),None,None)
-
-print(mtx)
+# print(mtx)
 
 homo_im = np.array(_2d_points)
-homo_ob = np.array(_3d_points)
+# homo_ob = np.array(_3d_points)
+# print(homo_im.shape)
 
-e = essential_matrix(homo_im,homo_ob)
+e = essential_matrix_cal(homo_im)
+print("essential_matrix:/n",e,"/n")
 
 t = returnT_fromE(e)
-tx = [[0,(-1)*t[2],t[1]],[t[2],0,(-1)*t[0]],[(-1)*t[1],t[0],0]]
+print("translation:/n",t,"/n")
+# tx = [[0,(-1)*t[2],t[1]],[t[2],0,(-1)*t[0]],[(-1)*t[1],t[0],0]]
 
-u, v = returnUV_fromE(e)
+r1,r2 = returnR_fromE(e)
+print("rotation_matrix",r1,"/n",r2,"/n")
+# u, v = returnUV_fromE(e)
 
-m1,m2,m3,m4 = returnP_fromE(e)
+# m1,m2,m3,m4 = returnP_fromE(e)
 
 # print(m1,m2,m3,m4)
