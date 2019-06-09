@@ -1,3 +1,5 @@
+# Here we calculate the value of intrinsic callibration constant of our camera
+
 import numpy as np
 from matplotlib import pyplot as plt
 import cv2
@@ -6,7 +8,7 @@ from glob import glob
 import math
 from scipy import linalg
 from numpy.linalg import inv
-from sklearn import linear_model, datasets
+# from sklearn import linear_model, datasets
 from utils import *
 
 
@@ -35,8 +37,8 @@ ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(_3d_points, _2d_points, (im.s
 
 print("ret",ret,"\n")
 print("mtx",mtx,"\n") 
-print("rvecs_shape",rvecs.shape,"\n")
-print("tvecs_shape",tvecs.shape,"\n")
+## print("rvecs_shape",rvecs.shape,"\n")
+## print("tvecs_shape",tvecs.shape,"\n")
 
 # p = returnP_fromK(mtx,rvecs,tvecs)
 # print(p)

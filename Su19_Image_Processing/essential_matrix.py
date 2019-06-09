@@ -39,11 +39,11 @@ for path in img_paths:
 ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(_3d_points, _2d_points, (im.shape[1],im.shape[0]),None,None)
 # print(mtx)
 
-homo_im = np.array(_2d_points)
+im = np.array(_2d_points)
 # homo_ob = np.array(_3d_points)
 # print(homo_im.shape)
 
-e = essential_matrix_cal(homo_im)
+e = essential_matrix_cal(im)
 print("essential_matrix:/n",e,"/n")
 
 t = returnT_fromE(e)
