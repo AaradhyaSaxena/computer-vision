@@ -60,9 +60,17 @@ def errorFundamental(F,img_pt1, img_pt2):
 	return w1
 
 # homo_im is numpy array
-def essential_matrix(homo_im):
+def essential_matrix(im):
 
-	length = homo_im.shape[1]
+	length = im.shape[1]
+	homo = np.ones((2,length,3))
+	homo_im = np.ones((2,length,3))
+	homo[:,:,:2] = im[:,:,:]
+	kk = np.load("data/intrinsic_parameters.npz")
+	k = kk['k']
+	homo_im[0,:,:] = np.matmul(inv(k),homo[0,:,:].T).T
+	homo_im[1,:,:] = np.matmul(inv(k),homo[1,:,:].T).T
+	
 	A = np.hstack(((homo_im[1,:,0]*homo_im[0,:,0]).reshape((length,1)),
 		(homo_im[1,:,0]*homo_im[0,:,1]).reshape((length,1)),
 		homo_im[1,:,0].reshape((length,1)),(homo_im[1,:,1]*homo_im[0,:,0]).reshape((length,1)),
@@ -74,12 +82,40 @@ def essential_matrix(homo_im):
 	u, s, vh = np.linalg.svd(ata, full_matrices=True)
 	L = vh[-1]
 	H = L.reshape(3, 3)
-	H = H/H[-1,-1]
+
+	return H
+
+
+def essential_matrix_kinv_ignored(homo_im):
+
+	length = homo_im.shape[1]
+
+	A = np.hstack(((homo_im[1,:,0]*homo_im[0,:,0]).reshape((length,1)),
+		(homo_im[1,:,0]*homo_im[0,:,1]).reshape((length,1)),
+		homo_im[1,:,0].reshape((length,1)),(homo_im[1,:,1]*homo_im[0,:,0]).reshape((length,1)),
+		(homo_im[1,:,1]*homo_im[0,:,1]).reshape((length,1)),
+		homo_im[1,:,1].reshape((length,1)),homo_im[0,:,0].reshape((length,1)),
+		homo_im[0,:,1].reshape((length,1)),np.ones((length,1))))
+	
+	ata = np.matmul(A.T,A)
+	u, s, vh = np.linalg.svd(ata, full_matrices=True)
+	L = vh[-1]
+	H = L.reshape(3, 3)
 
 	return H
 
 # homo_im is numpy array
 def essential_matrix_cal(homo_im):
+
+	length = im.shape[1]
+	homo = np.ones((2,length,3))
+	homo_im = np.ones((2,length,3))
+	homo[:,:,:2] = im[:,:,:]
+	kk = np.load("data/intrinsic_parameters.npz")
+	k = kk['k']
+	homo_im[0,:,:] = np.matmul(inv(k),homo[0,:,:].T).T
+	homo_im[1,:,:] = np.matmul(inv(k),homo[1,:,:].T).T
+
 	A = np.hstack(((homo_im[1,:,0,0]*homo_im[0,:,0,0]).reshape((315,1)),
 		(homo_im[1,:,0,0]*homo_im[0,:,0,1]).reshape((315,1)),
 		homo_im[1,:,0,0].reshape((315,1)),(homo_im[1,:,0,1]*homo_im[0,:,0,0]).reshape((315,1)),
@@ -91,7 +127,6 @@ def essential_matrix_cal(homo_im):
 	u, s, vh = np.linalg.svd(ata, full_matrices=True)
 	L = vh[-1]
 	H = L.reshape(3, 3)
-	H = H/H[-1,-1]
 
 	return H
 
