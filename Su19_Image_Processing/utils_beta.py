@@ -59,15 +59,16 @@ def errorFundamental(F,img_pt1, img_pt2):
 
 	return w1
 
-# homo_im is numpy array
+# im is numpy array
 def essential_matrix(im):
 
 	length = im.shape[1]
 	homo = np.ones((2,length,3))
 	homo_im = np.ones((2,length,3))
 	homo[:,:,:2] = im[:,:,:]
-	kk = np.load("data/intrinsic_parameters.npz")
-	k = kk['k']
+	kk = np.load("data/parameters.npz")
+	k = kk['k_new']
+	# k = kk['k']
 	homo_im[0,:,:] = np.matmul(inv(k),homo[0,:,:].T).T
 	homo_im[1,:,:] = np.matmul(inv(k),homo[1,:,:].T).T
 	
@@ -105,16 +106,16 @@ def essential_matrix_kinv_ignored(homo_im):
 	return H
 
 # homo_im is numpy array
-def essential_matrix_cal(homo_im):
+def essential_matrix_cal(im):
 
 	length = im.shape[1]
-	homo = np.ones((2,length,3))
-	homo_im = np.ones((2,length,3))
-	homo[:,:,:2] = im[:,:,:]
-	kk = np.load("data/intrinsic_parameters.npz")
+	homo = np.ones((2,length,1,3))
+	homo_im = np.ones((2,length,1,3))
+	homo[:,:,0,:2] = im[:,:,0,:]
+	kk = np.load("data/parameters.npz")
 	k = kk['k']
-	homo_im[0,:,:] = np.matmul(inv(k),homo[0,:,:].T).T
-	homo_im[1,:,:] = np.matmul(inv(k),homo[1,:,:].T).T
+	homo_im[0,:,0,:] = np.matmul(inv(k),homo[0,:,0,:].T).T
+	homo_im[1,:,0,:] = np.matmul(inv(k),homo[1,:,0,:].T).T
 
 	A = np.hstack(((homo_im[1,:,0,0]*homo_im[0,:,0,0]).reshape((315,1)),
 		(homo_im[1,:,0,0]*homo_im[0,:,0,1]).reshape((315,1)),
