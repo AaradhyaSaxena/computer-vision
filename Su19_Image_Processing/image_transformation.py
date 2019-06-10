@@ -23,17 +23,7 @@ for path in img_paths:
 
 im = np.array(_2d_points)
 
-
-
-
-
-
-
-
-
 e = essential_matrix(im)
-
-
 
 # img = cv2.imread("opencv_frame_ref_0.png",0)
 
