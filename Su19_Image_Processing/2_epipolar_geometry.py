@@ -2,8 +2,12 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 
-img1 = cv2.imread('opencv_frame_ref_1.png',0)  #queryimage # left image
-img2 = cv2.imread('opencv_frame_ref_2.png',0) #trainimage # right image
+# img1 = cv2.imread('opencv_frame_ref_1.png',0)  #queryimage # left image
+# img2 = cv2.imread('opencv_frame_ref_2.png',0) #trainimage # right image
+
+img1 = cv2.imread('opencv_frame_15.png',0)  
+img2 = cv2.imread('opencv_frame_16.png',0)
+
 
 # sift = cv2.SIFT()
 orb = cv2.ORB()
@@ -75,19 +79,18 @@ lines2 = cv2.computeCorrespondEpilines(pts1.reshape(-1,1,2), 1,F)
 lines2 = lines2.reshape(-1,3)
 img3,img4 = drawlines(img2,img1,lines2,pts2,pts1)
 
-# plt.subplot(121),plt.imshow(img5)
-# plt.subplot(122),plt.imshow(img3)
-# plt.show()
+plt.subplot(121),plt.imshow(img5)
+plt.subplot(122),plt.imshow(img3)
+plt.show()
 
-########################
-#### DEPTH ESTIMATION
-########################
+#########################
+#### DEPTH ESTIMATION ###
+#########################
 
 
 imgL = cv2.imread('opencv_frame_ref_1.png',0)
 imgR = cv2.imread('opencv_frame_ref_2.png',0)
 
-# stereo = cv2.createStereoBM(numDisparities=16, blockSize=15)
 # stereo = cv2.StereoBM(cv2.STEREO_BM_BASIC_PRESET,ndisparities=16, SADWindowSize=15)
 stereo = cv2.StereoBM_create(numDisparities=16, blockSize=15)
 disparity = stereo.compute(imgL,imgR)
