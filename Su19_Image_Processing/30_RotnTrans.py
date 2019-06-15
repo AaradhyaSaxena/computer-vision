@@ -14,58 +14,65 @@ _2d_points=[]
 essentialMatrix=[]
 tvecs=[]
 rvecs=[]
+index=[]
+image=[]
+X =[]
+
 
 img_paths=glob('*.png')
 for path in img_paths:
-    img =cv2.imread(path)
-    corners = find_corners(img)
+    img = cv2.imread(path,0)
+    corners = find_corner_pts(img,500)
     _2d_points.append(corners)
+    image.append(img)
 
 homo_im = np.array(_2d_points)
+image = np.array(image)
+
 
 N = len(homo_im)
 
-################
-
-# im1 = homo_im[0]
-# im2 = homo_im[1]
-
-# length = im1.shape[0]
-# homo = np.ones((2,length,3))
-# homo_im = np.ones((2,length,3))
-# homo[:,:,0] = im1.T
-# homo[:,:,1] = im2.T
-# kk = np.load("data/parameters.npz")
-# # k = kk['k_new']
-# k = kk['k']
-# homo_im[0,:,:] = np.matmul(inv(k),homo[0,:,:].T).T
-# homo_im[1,:,:] = np.matmul(inv(k),homo[1,:,:].T).T
-
-# A = np.hstack(((homo_im[1,:,0]*homo_im[0,:,0]).reshape((length,1)),
-# 	(homo_im[1,:,0]*homo_im[0,:,1]).reshape((length,1)),
-# 	homo_im[1,:,0].reshape((length,1)),(homo_im[1,:,1]*homo_im[0,:,0]).reshape((length,1)),
-# 	(homo_im[1,:,1]*homo_im[0,:,1]).reshape((length,1)),
-# 	homo_im[1,:,1].reshape((length,1)),homo_im[0,:,0].reshape((length,1)),
-# 	homo_im[0,:,1].reshape((length,1)),np.ones((length,1))))
-	
-# ata = np.matmul(A.T,A)
-# u, s, vh = np.linalg.svd(ata, full_matrices=True)
-# L = vh[-1]
-# H = L.reshape(3, 3)
-
-###################
-
 for i in range(N):
-	for j in range(N):
-		while(j>i and j<N):
-			e = essential_matrix(homo_im[i],homo_im[j])
-			essentialMatrix.append(e)
-			tvecs.append(returnT_fromE(e))
-			rvecs.append(returnR1_fromE(e))
+	j = i+1
+	while(j<N):
+		e = essential_matrix(homo_im[i],homo_im[j])
+		essentialMatrix.append(e)
+		tvecs.append(returnT_fromE(e))
+		rvecs.append(returnR1_fromE(e))
+		index.append((i,j))
+		X.append(np.stack((image[i],image[j]),axis=-1))
+		j = j+1
 
-# np.savez('data/training_data', e = essentialMatrix, r = rvecs, t = tvecs, im = homo_im)
+# np.savez('data/training_data', e = essentialMatrix, r = rvecs, t = tvecs, 
+# 			corners = homo_im, index = index, X = X)
 # l = np.load('data/training_data.npz')
-# l.files
+# print(l.files)
+
+
+#----------------predicted--------------------
+
+model.load_weights('data/model_1')
+
+# pre = np.load('data/prediction_model1.npz')
+# r_pre = []
+# t_pre = []
+# e_pre =[]
+# for i in range(len(pre['e'])):
+# 	t_pre.append(returnT_fromE(pre['e'][i].reshape((3,3))))
+# 	r_pre.append(returnR1_fromE(pre['e'][i].reshape((3,3))))
+# 	e_pre.append(pre['e'])
+
+# np.savez('data/prediction_model1', e_pre = e_pre, t_pre = t_pre, r_pre = r_pre)
+
+#-----------------depth_estimation--------------
+
+
+
+
+
+
+
+
 
 
 

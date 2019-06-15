@@ -8,25 +8,25 @@ from utils_gamma import *
 # img1 = cv2.imread('opencv_frame_ref_1.png',0)  #queryimage # left image
 # img2 = cv2.imread('opencv_frame_ref_2.png',0) #trainimage # right image
 
-img1 = cv2.imread('opencv_frame_3.png',0)  
-img2 = cv2.imread('opencv_frame_4.png',0)
+img1 = cv2.imread('data_3.png',0)  
+img2 = cv2.imread('data_7.png',0)
 
 
 #####################################
 ### THIS DOES NOT TRULY BELONG HERE #
 #####################################
 
-_3d_points=[]
-_2d_points=[]
-img_paths = ['opencv_frame_3.png','opencv_frame_4.png']
-for path in img_paths:
-    img =cv2.imread(path)
-    corners = find_corners(img)
-    _2d_points.append(corners)
-homo_im = np.array(_2d_points)
+# _3d_points=[]
+# _2d_points=[]
+# img_paths = ['opencv_frame_3.png','opencv_frame_4.png']
+# for path in img_paths:
+#     img =cv2.imread(path)
+#     corners = find_corners(img)
+#     _2d_points.append(corners)
+# homo_im = np.array(_2d_points)
 
-e = essential_matrix(homo_im)
-print("essential_matrix:\n",e,"\n")
+# e = essential_matrix(homo_im)
+# print("essential_matrix:\n",e,"\n")
 #####################################
 #####################################
 # sift = cv2.SIFT()
@@ -120,14 +120,14 @@ plt.show()
 #########################
 
 
-imgL = cv2.imread('opencv_frame_ref_1.png',0)
-imgR = cv2.imread('opencv_frame_ref_2.png',0)
+# imgL = cv2.imread('opencv_frame_ref_1.png',0)
+# imgR = cv2.imread('opencv_frame_ref_2.png',0)
 
-# stereo = cv2.StereoBM(cv2.STEREO_BM_BASIC_PRESET,ndisparities=16, SADWindowSize=15)
-stereo = cv2.StereoBM_create(numDisparities=16, blockSize=15)
-disparity = stereo.compute(imgL,imgR)
-plt.imshow(disparity,'gray')
-plt.show()
+# # stereo = cv2.StereoBM(cv2.STEREO_BM_BASIC_PRESET,ndisparities=16, SADWindowSize=15)
+# stereo = cv2.StereoBM_create(numDisparities=16, blockSize=15)
+# disparity = stereo.compute(imgL,imgR)
+# plt.imshow(disparity,'gray')
+# plt.show()
 
 
 
