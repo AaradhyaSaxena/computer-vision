@@ -14,6 +14,7 @@ _2d_points=[]
 essentialMatrix=[]
 tvecs=[]
 rvecs=[]
+depth=[]
 index=[]
 image=[]
 X =[]
@@ -39,19 +40,20 @@ for i in range(N):
 		essentialMatrix.append(e)
 		tvecs.append(returnT_fromE(e))
 		rvecs.append(returnR1_fromE(e))
+		depth.append(return_depth_im12(homo_im[i],homo_im[j],returnR1_fromE(e),returnT_fromE(e)))
 		index.append((i,j))
 		X.append(np.stack((image[i],image[j]),axis=-1))
 		j = j+1
 
-# np.savez('data/training_data', e = essentialMatrix, r = rvecs, t = tvecs, 
-# 			corners = homo_im, index = index, X = X)
-# l = np.load('data/training_data.npz')
-# print(l.files)
+np.savez('data/training_data', e = essentialMatrix, r = rvecs, t = tvecs, 
+			depth = depth, corners = homo_im, index = index, X = X)
+l = np.load('data/training_data.npz')
+print(l.files)
 
 
 #----------------predicted--------------------
 
-model.load_weights('data/model_1')
+# model.load_weights('data/model_1')
 
 # pre = np.load('data/prediction_model1.npz')
 # r_pre = []

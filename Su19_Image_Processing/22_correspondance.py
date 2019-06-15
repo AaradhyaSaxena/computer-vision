@@ -8,7 +8,7 @@ from scipy import linalg
 from numpy.linalg import inv
 # from sklearn import linear_model, datasets
 from utils import *
-# from utils_beta import *
+from utils_beta import *
 from utils_gamma import *
 
 
@@ -56,9 +56,32 @@ def essential_matrix(im):
 	left = np.matmul(u1,np.diag(s2))
 	E = np.matmul(left,vh1)
 
-
 	return E
 
+def return_depth(im,r1,t):
+
+	length = im.shape[1]
+	homo = np.ones((2,length,3))
+	homo_im = np.ones((2,length,3))
+	homo_im[:,:,:2] = im[:,:,:]
+	# homo[:,:,:2] = im[:,:,:]
+	# kk = np.load("data/parameters.npz")
+	# # k = kk['k_new']
+	# k = kk['k']
+	# homo_im[0,:,:] = np.matmul(inv(k),homo[0,:,:].T).T
+	# homo_im[1,:,:] = np.matmul(inv(k),homo[1,:,:].T).T
+
+	rot1 = np.matmul(np.matmul(homo_im[1],r1),homo_im[0].T)
+	trans1 = np.matmul(homo_im[1],t.reshape((3,1)))
+
+	A = np.hstack((rot1,trans1))
+	ata = np.matmul(A.T,A)
+	u, s, vh = np.linalg.svd(ata, full_matrices=True)
+	Depth = vh[-1].reshape(length+1,1)
+
+	return Depth	
+
+##----------------------------------------
 e = essential_matrix(homo_im)
 print("essential_matrix:\n",e,"\n")
 
@@ -69,11 +92,15 @@ print("translation:\n",t,"\n")
 r1,r2 = returnR_fromE(e)
 print("rotation_matrix",r1,"\n",r2,"\n")
 
+depth = return_depth(homo_im,r1,t)
+print("depth:\n",depth,"\n")
+
 # u, v = returnUV_fromE(e)
 
 # m1,m2,m3,m4 = returnP_fromE(e)
 
 # print(m1,m2,m3,m4)
+
 
 
 
