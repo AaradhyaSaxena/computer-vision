@@ -8,7 +8,7 @@ from scipy import linalg
 from numpy.linalg import inv
 # from sklearn import linear_model, datasets
 from utils import *
-from utils_beta import *
+# from utils_beta import *
 from utils_gamma import *
 
 
@@ -16,7 +16,7 @@ _3d_points=[]
 _2d_points=[]
 
 # img_paths=glob('*.png') #get paths of all all images
-img_paths = ['opencv_frame_3.png','opencv_frame_4.png']
+img_paths = ['data_5.png','data_6.png']
 
 for path in img_paths:
     img =cv2.imread(path)
@@ -50,7 +50,14 @@ def essential_matrix(im):
 	L = vh[-1]
 	H = L.reshape(3, 3)
 
-	return H
+	u1, s1, vh1 = np.linalg.svd(H,full_matrices=True)
+
+	s2 = np.array([(s1[0]+s1[1])/2, (s1[0]+s1[1])/2, 0])
+	left = np.matmul(u1,np.diag(s2))
+	E = np.matmul(left,vh1)
+
+
+	return E
 
 e = essential_matrix(homo_im)
 print("essential_matrix:\n",e,"\n")

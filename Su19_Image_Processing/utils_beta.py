@@ -59,8 +59,43 @@ def errorFundamental(F,img_pt1, img_pt2):
 
 	return w1
 
-# im is numpy array
-def essential_matrix(im):
+#im shape = (2(num_of_images),Number_Of_Corners,2(x,y))
+def essential_matrix_pt(im):
+
+	length = im.shape[1]
+	homo = np.ones((2,length,3))
+	homo_im = np.ones((2,length,3))
+	homo[:,:,:2] = im[:,:,:]
+	kk = np.load("data/parameters.npz")
+	k = kk['k_new']
+	# k = kk['k']
+	homo_im[0,:,:] = np.matmul(inv(k),homo[0,:,:].T).T
+	homo_im[1,:,:] = np.matmul(inv(k),homo[1,:,:].T).T
+	
+	A = np.hstack(((homo_im[1,:,0]*homo_im[0,:,0]).reshape((length,1)),
+		(homo_im[1,:,0]*homo_im[0,:,1]).reshape((length,1)),
+		homo_im[1,:,0].reshape((length,1)),(homo_im[1,:,1]*homo_im[0,:,0]).reshape((length,1)),
+		(homo_im[1,:,1]*homo_im[0,:,1]).reshape((length,1)),
+		homo_im[1,:,1].reshape((length,1)),homo_im[0,:,0].reshape((length,1)),
+		homo_im[0,:,1].reshape((length,1)),np.ones((length,1))))
+	
+	ata = np.matmul(A.T,A)
+	u, s, vh = np.linalg.svd(ata, full_matrices=True)
+	L = vh[-1]
+	H = L.reshape(3, 3)
+
+	u1, s1, vh1 = np.linalg.svd(H,full_matrices=True)
+
+	s2 = np.array([(s1[0]+s1[1])/2, (s1[0]+s1[1])/2, 0])
+	left = np.matmul(u1,np.diag(s2))
+	E = np.matmul(left,vh1)
+
+
+	return E
+
+
+#im shape = (2(num_of_images),Number_Of_Corners,2(x,y))
+def essential_matrix_ignoredTh2(im):
 
 	length = im.shape[1]
 	homo = np.ones((2,length,3))
@@ -129,7 +164,7 @@ def essential_matrix_cal(im):
 	L = vh[-1]
 	H = L.reshape(3, 3)
 
-	return H
+	return H,ata
 
 # takes in 3x3 essential matrix
 def returnT_fromE(e):

@@ -66,7 +66,14 @@ def essential_matrix(im1, im2):
 	L = vh[-1]
 	H = L.reshape(3, 3)
 
-	return H
+	u1, s1, vh1 = np.linalg.svd(H,full_matrices=True)
+
+	s2 = np.array([(s1[0]+s1[1])/2, (s1[0]+s1[1])/2, 0])
+	left = np.matmul(u1,np.diag(s2))
+	E = np.matmul(left,vh1)
+
+
+	return E
 
 # takes in 3x3 essential matrix
 def returnT_fromE(e):
