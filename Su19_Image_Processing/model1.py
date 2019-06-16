@@ -50,9 +50,8 @@ model=return_new(model_temp)
 
 #-------------------DATA-------------------
 data = np.load('../training_data.npz')
-X = data['X']/255.0
-X1=X[:,:,:,:1]
-X2=X[:,:,:,1:]
+X1 = data['X1']/255.0
+X2 = data['X2']/255.0
 
 y = data['e'].reshape((36,9))
 

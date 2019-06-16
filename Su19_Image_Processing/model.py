@@ -29,9 +29,8 @@ model.compile(loss="mse",optimizer="Adam")
 
 #-------------------DATA-------------------
 data = np.load('../training_data.npz')
-X = data['X']
-X1=X[:,:,:,:1]
-X2=X[:,:,:,1:]
+X1 = data['X1']/255.0
+X2 = data['X2']/255.0
 
 y = data['e'].reshape((36,9))
 
@@ -39,11 +38,11 @@ y = data['e'].reshape((36,9))
 
 
 #-------------------------Training-----------
-# model.fit([X1,X2],y,batch_size=3,epochs=100)
+model.fit([X1,X2],y,batch_size=,epochs=100)
 
-# y2=model.predict([X1,X2])
+y2=model.predict([X1,X2])
 
-# np.savez('prediction_model', e =y2)
+np.savez('prediction_model', e =y2)
 
 # RT=model.predict([X1[0:1],X2[:1]])
 # model.predict([X1[0:1],X2[:1]])
