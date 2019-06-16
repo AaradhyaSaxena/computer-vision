@@ -67,5 +67,5 @@ y = data['e'].reshape((36,9))
 
 
 # ssh -X  ranjan@192.168.59.103
-
+# ssh -X  ecsuiplab@192.168.59.241
 
