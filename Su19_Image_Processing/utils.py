@@ -24,6 +24,61 @@ from numpy import linalg as LA
 #############################################
 #############################################
 
+
+def find_correspondance(img1,img2,n_pts=20):
+
+    orb = cv2.ORB()
+    orb = cv2.ORB_create(edgeThreshold=15, patchSize=31,
+                    nlevels=8, fastThreshold=20,scaleFactor=1.2, 
+                    WTA_K=2, scoreType=cv2.ORB_HARRIS_SCORE, 
+                    firstLevel=0,nfeatures=500)
+    kp1 = orb.detect(img1,None)
+    kp1, des1 = orb.compute(img1, kp1)
+    kp2 = orb.detect(img2,None)
+    kp2, des2 = orb.compute(img2, kp2)
+
+    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+    matches = bf.match(des1,des2)
+    matches = sorted(matches, key = lambda x:x.distance)
+
+    good = []
+    pts1 = []
+    pts2 = []
+
+    for m in matches:
+        good.append([m])
+        pts2.append(kp2[m.trainIdx].pt)
+        pts1.append(kp1[m.queryIdx].pt)
+
+    pts1 = np.int32(pts1)
+    pts2 = np.int32(pts2)
+    
+    return pts1, pts2
+
+def return_depth(homo_pt1,homo_pt2,r1,t):
+
+    length = homo_pt1.shape[1]
+    homo1 = np.ones((length,3))
+    homo2 = np.ones((length,3))
+    homo1[:,:2] = homo_pt1[:,:]
+    homo2[:,:2] = homo_pt2[:,:]
+    kk = np.load("data/parameters.npz") # k = kk['k_new']
+    k = kk['k']
+    homo_im1 = np.ones((length,3))
+    homo_im2 = np.ones((length,3))
+    homo_im1[:,:] = np.matmul(inv(k),homo1[:,:].T).T
+    homo_im2[:,:] = np.matmul(inv(k),homo2[:,:].T).T
+
+    rot1 = np.matmul(np.matmul(homo_im2,r1),homo_im1.T)
+    trans1 = np.matmul(homo_im2,t.reshape((3,1)))
+
+    A = np.hstack((rot1,trans1))
+    ata = np.matmul(A.T,A)
+    u, s, vh = np.linalg.svd(ata, full_matrices=True)
+    Depth = vh[-1].reshape(length+1,1)
+
+    return Depth
+
 def find_corner_pts(img,n_pts=500):
     orb = cv2.ORB_create(edgeThreshold=15, patchSize=31,
                 nlevels=8, fastThreshold=20,scaleFactor=1.2, 
