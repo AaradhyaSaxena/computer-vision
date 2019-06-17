@@ -2,14 +2,12 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 from utils import *
-from utils_beta import *
-from utils_gamma import *
 
 # img1 = cv2.imread('opencv_frame_ref_1.png',0)  #queryimage # left image
 # img2 = cv2.imread('opencv_frame_ref_2.png',0) #trainimage # right image
 
-img1 = cv2.imread('data_3.png',0)  
-img2 = cv2.imread('data_7.png',0)
+img1 = cv2.imread('data_4.png',0)  
+img2 = cv2.imread('data_3.png',0)
 
 
 #####################################
@@ -51,7 +49,7 @@ matches = bf.match(des1,des2)
 # Sort them in the order of their distance.
 matches = sorted(matches, key = lambda x:x.distance)
 # Draw first 10 matches.
-img3 = cv2.drawMatches(img1,kp1,img2,kp2,matches[:50],None, flags=2)
+img3 = cv2.drawMatches(img1,kp1,img2,kp2,matches[:5],None, flags=2)
 # plt.imshow(img3),plt.show()
 
 good = []
