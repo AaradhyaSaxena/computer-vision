@@ -53,11 +53,11 @@ data = np.load('../training_data.npz')
 X1 = data['X1']/255.0
 X2 = data['X2']/255.0
 
-y = data['e'].reshape((36,9))
+y = data['e'].reshape((10,9))
 
 #-------------------------Training-----------
 
-model.fit([X1,X2],y,batch_size=3,epochs=100)
+model.fit([X1,X2],y,batch_size=10,epochs=100)
 
 # model.load_weights('data/model_1')
 
