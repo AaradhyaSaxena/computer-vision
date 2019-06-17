@@ -144,8 +144,8 @@ def essential_matrix(im1, im2):
     left = np.matmul(u1,np.diag(s2))
     E = np.matmul(left,vh1)
 
-
     return E
+    # return H
 
 # takes in 3x3 essential matrix
 def returnT_fromE(e):
