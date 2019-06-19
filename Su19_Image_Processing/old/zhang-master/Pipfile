@@ -1,6 +1,0 @@
-[packages]
-numpy = "*"
-scipy = "*"
-
-[dev-packages]
-pylint = "*"
