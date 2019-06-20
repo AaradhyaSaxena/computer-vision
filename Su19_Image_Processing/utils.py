@@ -11,6 +11,77 @@ from numpy import linalg as LA
 #############################################
 ##### -----------Utils_gamma-----------------
 
+## (im1,im2,flow).shape=(416x416)
+## num_corr= number of points taken to calculate depth
+def return_corr_from_flow(im1, im2, flow):
+    samples = im1.shape[0]
+    image_height = im1.shape[1]
+    image_width = im1.shape[2]
+    flow_height = flow.shape[1] 
+    flow_width = flow.shape[2]
+    n = image_height * image_width
+
+    essentialMatrix=[]
+    index=[]
+    tvecs=[]
+    rvecs=[]
+    depth=[]
+
+    corr1 =[]
+    corr2 =[]
+
+    for i in range(samples):
+
+        (iy, ix) = np.mgrid[0:image_height, 0:image_width]
+        (fy, fx) = np.mgrid[0:flow_height, 0:flow_width]
+        fx = fx.astype(np.float64)
+        fy = fy.astype(np.float64)
+        fx += flow[i,:,:,0]
+        fy += flow[i,:,:,1]
+        fx = np.minimum(np.maximum(fx, 0), flow_width)
+        fy = np.minimum(np.maximum(fy, 0), flow_height)
+        points = np.concatenate((ix.reshape(n,1), iy.reshape(n,1)), axis=1)
+        xi = np.concatenate((fx.reshape(n, 1), fy.reshape(n,1)), axis=1)
+        corr1.append(points)
+        corr2.append(xi)
+
+    corr1 = np.array(corr1)
+    corr2 = np.array(corr2)
+
+    Nn = len(corr1)
+    for i in range(Nn):
+        e = essential_matrix(corr1[i],corr2[i])
+        essentialMatrix.append(e)
+        tvecs.append(returnT_fromE(e))
+        rvecs.append(returnR1_fromE(e))
+
+    for i in range(samples):
+
+        e = essentialMatrix[0]
+        t = tvecs[0]
+        r = rvecs[0]
+        d = []
+        q = 416
+        for j in range(int(n/q)):
+            print(i,j)
+            selec1 = corr1[i,j*(q):(j+1)*q,:]
+            selec2 = corr2[i,j*(q):(j+1)*q,:]
+            d.append(return_depth(selec1,selec2,r,t))
+
+        if(n%q!= 0):
+            selec1 = corr1[i,(n/q)*q:(n/q)*q+(n%q),:]
+            selec2 = corr2[i,(n/q)*q:(n/q)*q+(n%q),:]       
+            d.append(return_depth(selec1,selec2,r,t))
+
+        depth.append(d)
+
+    depth = np.array(depth)
+    depth = depth.reshape((samples,image_height,image_width+1,1))
+    depth = (depth+1)/2 # pixel values: (-1,1)>>(0,1)
+
+    return essentialMatrix,tvecs,rvecs,depth,corr1,corr2
+
+
 def find_correspondance(img1,img2,n_pts=20):
 
     orb = cv2.ORB()
@@ -43,6 +114,7 @@ def find_correspondance(img1,img2,n_pts=20):
 
 def return_depth(homo_pt1,homo_pt2,r1,t):
 
+    # print(homo_pt1.shape)
     length = homo_pt1.shape[0]
     homo1 = np.ones((length,3))
     homo2 = np.ones((length,3))
@@ -55,13 +127,16 @@ def return_depth(homo_pt1,homo_pt2,r1,t):
     homo_im1[:,:] = np.matmul(inv(k),homo1[:,:].T).T
     homo_im2[:,:] = np.matmul(inv(k),homo2[:,:].T).T
 
+    # print(homo_im1.shape)
     a = np.matmul(homo_im2,r1)
     rot1 = np.matmul(a,homo_im1.T)
     trans1 = np.matmul(homo_im2,t.reshape((3,1)))
-
+    
     A = np.hstack((rot1,trans1))
     ata = np.matmul(A.T,A)
+    # print(homo_im1.shape)
     u, s, vh = np.linalg.svd(ata, full_matrices=True)
+    # print(homo_im1.shape)
     Depth = vh[-1].reshape(length+1,1)
 
     return Depth
