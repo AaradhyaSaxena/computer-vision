@@ -55,57 +55,38 @@ from utils import *
 
 ##-------------------flow_to_depth------------------
 
-essentialMatrix=[]
-tvecs=[]
-rvecs=[]
-depth=[]
-index=[]
+# im1 = np.load('data/unet.npz')['X1']
+# im2 = np.load('data/unet.npz')['X2']
+# flow = np.load('data/unet_out.npz')['y']
 
-im1 = np.load('data/unet.npz')['X1']
-im2 = np.load('data/unet.npz')['X2']
-flow = np.load('data/unet_out.npz')['y']
+# essentialMatrix,tvecs,rvecs,depth,corr1,corr2 = return_corr_from_flow(im1, im2, flow)
 
-samples = im1.shape[0]
-image_height = im1.shape[1]
-image_width = im1.shape[2]
-flow_height = flow.shape[1]
-flow_width = flow.shape[2]
-n = image_height * image_width
+# np.savez('data/flow_to_depth', e = essentialMatrix, r = rvecs, t = tvecs, 
+# 			depth = depth, corr1 = corr1, corr2 = corr2)
+# l = np.load('data/flow_to_depth.npz')
+# print(l.files)
 
-corr1 =[]
-corr2 =[]
+##-------------------depth_plot---------------------
 
-for i in range(samples):
-	(iy, ix) = np.mgrid[0:image_height, 0:image_width]
-	(fy, fx) = np.mgrid[0:flow_height, 0:flow_width]
-	fx = fx.astype(np.float64)
-	fy = fy.astype(np.float64)
-	fx += flow[i,:,:,0]
-	fy += flow[i,:,:,1]
-	fx = np.minimum(np.maximum(fx, 0), flow_width)
-	fy = np.minimum(np.maximum(fy, 0), flow_height)
-	points = np.concatenate((ix.reshape(n,1), iy.reshape(n,1)), axis=1)
-	xi = np.concatenate((fx.reshape(n, 1), fy.reshape(n,1)), axis=1)
-	corr1.append(points)
-	corr2.append(xi)
+# data = np.load('data/flow_to_depth.npz')
+# print(data.files)
 
-corr1 = np.array(corr1)
-corr2 = np.array(corr2)
+# depth = data['depth']
+# # depth = (depth +1)/2
 
-Nn = len(corr1)
-for i in range(Nn):
-	e = essential_matrix(corr1[i],corr2[i])
-	essentialMatrix.append(e)
-	tvecs.append(returnT_fromE(e))
-	rvecs.append(returnR1_fromE(e))
-	
-	# depth.append(return_depth(corr1[i],corr2[i],returnR1_fromE(e),returnT_fromE(e)))
+# for i in range(len(depth)):
+# 	im0 = depth[i]
+# 	cv2.imwrite('depth_{}.jpg', im0).format(i)
+# 	# cv2.imshow("image", im0);
+# 	# cv2.waitKey();
 
 
-np.savez('data/flow_to_depth', e = essentialMatrix, r = rvecs, t = tvecs, 
-			depth = depth, corr1 = corr1, corr2 = corr2)
-l = np.load('data/flow_to_depth.npz')
-print(l.files)
+
+
+
+
+
+
 
 
 
