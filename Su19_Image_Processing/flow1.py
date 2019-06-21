@@ -8,146 +8,76 @@ from glob import glob
 import math
 from scipy import linalg
 from numpy.linalg import inv
-from utils import *
+# from utils import *
 from optical_flow_toolkit import *
+from utils_flow import *
 
-## (im1,im2,flow).shape=(416x416)
-## num_corr= number of points taken to calculate depth
-def return_corr_from_flow(im1, im2, flow):
-    # samples = im1.shape[0]
-    # image_height = im1.shape[1]
-    # image_width = im1.shape[2]
-    # flow_height = flow.shape[1] 
-    # flow_width = flow.shape[2]
-    # n = image_height * image_width
-    samples = flow.shape[0]
-    image_height = im1.shape[1]
-    image_width = im1.shape[2]
-    flow_height = flow.shape[1] 
-    flow_width = flow.shape[2]
-    n = image_height * image_width
+###----------------------data------------------------------
 
-    essentialMatrix=[]
-    index=[]
-    tvecs=[]
-    rvecs=[]
-    depth=[]
+# f=read_flo_file("00_flow_data/flo/frame_0001.flo")
 
-    corr1 =[]
-    corr2 =[]
+# im1 = cv2.imread("00_flow_data/image/frame_0001.png",0)
+# im2 = cv2.imread("00_flow_data/image/frame_0002.png",0)
+# f = f[np.newaxis,:,:,:]
+# im1 = im1[np.newaxis,:,:]
+# im2 = im2[np.newaxis,:,:]
 
-    for i in range(samples):
+# depth,essentialMatrix,tvecs,rvecs,corr1,corr2 = return_corr_from_flow(im1, im2, f)
 
-        (iy, ix) = np.mgrid[0:image_height, 0:image_width]
-        (fy, fx) = np.mgrid[0:flow_height, 0:flow_width]
-        fx = fx.astype(np.float64)
-        fy = fy.astype(np.float64)
-        fx += flow[i,:,:,0]
-        fy += flow[i,:,:,1]
-        #fx += flow[:,:,0]
-        #fy += flow[:,:,1]
-        #fx=np.clip(fx,0,flow_width)
-        #fy=np.clip(fy,0,flow_height)
-        fx = np.minimum(np.maximum(fx, 0), flow_width)
-        fy = np.minimum(np.maximum(fy, 0), flow_height)
-        fx_new=fx.reshape((fx.shape[0]*fx.shape[1],1))
-        fy_new=fy.reshape((fy.shape[0]*fy.shape[1],1))
-        ix_new=ix.reshape((ix.shape[0]*ix.shape[1],1))
-        iy_new=iy.reshape((iy.shape[0]*iy.shape[1],1))
+# np.savez('depth_12', depth=depth)
 
-        points=np.concatenate([ix_new,iy_new],axis=-1)
-        xi=np.concatenate([fx_new,fy_new],axis=-1)
+###----------------------preprocessing------------------------------
 
-        #points = np.concatenate((ix.reshape(n,1), iy.reshape(n,1)), axis=1)
-        #xi = np.concatenate((fx.reshape(n, 1), fy.reshape(n,1)), axis=1)
-        corr1.append(points)
-        corr2.append(xi)
+data = np.load('depth_12.npz')
+depth = data['depth']
 
-    corr1 = np.array(corr1)
-    corr2 = np.array(corr2)
+## coeffe of translation term
+# scale = depth[0,:,436,0]
 
-    Nn = len(corr1)
-    for i in range(Nn):
-        e = essential_matrix(corr1[i],corr2[i])
-        essentialMatrix.append(e)
-        tvecs.append(returnT_fromE(e))
-        rvecs.append(returnR1_fromE(e))
+# dividing by the co-effe of translation term to scale all the other co-effe
+depth_scale = depth[0,:,:,0]/depth[0,:,436,0,None]
 
-    for i in range(samples):
+# plt.imshow(depth[0,:,:,0], cmap=plt.get_cmap('flag'))
 
-        e = essentialMatrix[i]
-        t = tvecs[i]
-        r = rvecs[i]
-        d = []
-        q = 436
-        for j in range(int(n/q)):
-            print(i,j)
-            selec1 = corr1[i,j*(q):(j+1)*q,:]
-            selec2 = corr2[i,j*(q):(j+1)*q,:]
-            d.append(return_depth(selec1,selec2,r,t))
+plt.imshow(depth_scale[:,:].T, cmap=plt.get_cmap('flag'))
 
-        if(n%q!= 0):
-            selec1 = corr1[i,(n/q)*q:(n/q)*q+(n%q),:]
-            selec2 = corr2[i,(n/q)*q:(n/q)*q+(n%q),:]       
-            d.append(return_depth(selec1,selec2,r,t))
-
-        depth.append(d)
-
-    depth = np.array(depth).T
-    depth = depth.reshape((samples,image_width,image_height+1,1))
-    depth = (depth +1)/2
-
-    return depth,essentialMatrix,tvecs,rvecs,corr1,corr2
-
-###-----------------------------------------------------------
-
-f=read_flo_file("/media/newhd/data/flow/MPI_SINTEL/MPI-Sintel-complete/training/flow/alley_1/frame_0001.flo")
-
-im1 = cv2.imread("/media/newhd/data/flow/MPI_SINTEL/MPI-Sintel-complete/training/albedo/alley_1/frame_0001.png",0)
-im2 = cv2.imread("/media/newhd/data/flow/MPI_SINTEL/MPI-Sintel-complete/training/albedo/alley_1/frame_0002.png",0)
-f = f[np.newaxis,:,:,:]
-im1 = im1[np.newaxis,:,:]
-im2 = im2[np.newaxis,:,:]
-
-essentialMatrix,tvecs,rvecs,depth,corr1,corr2 = return_corr_from_flow(im1, im2, f)
-
-"""
-Once you have a .flo file, you can create a color coding of it using
-color_flow
-
-Use colortest to visualize the encoding
+plt.show()
 
 
-To compile
-
-cd imageLib
-make
-cd ..
-make
-./colortest 10 colors.png
-"""
 
 
-# flo_paths=glob("/media/newhd/data/flow/MPI_SINTEL/MPI-Sintel-complete/training/flow/alley_1")
 
+
+
+
+###----------------------------------------------------
+
+# f=read_flo_file("/media/newhd/data/flow/MPI_SINTEL/MPI-Sintel-complete/training/flow/alley_1/frame_0001.flo")
+
+# im1 = cv2.imread("/media/newhd/data/flow/MPI_SINTEL/MPI-Sintel-complete/training/albedo/alley_1/frame_0001.png",0)
+# im2 = cv2.imread("/media/newhd/data/flow/MPI_SINTEL/MPI-Sintel-complete/training/albedo/alley_1/frame_0002.png",0)
+# f = f[np.newaxis,:,:,:]
+# im1 = im1[np.newaxis,:,:]
+# im2 = im2[np.newaxis,:,:]
+
+# essentialMatrix,tvecs,rvecs,depth,corr1,corr2 = return_corr_from_flow(im1, im2, f)
+
+
+
+##--------------crop------------------------
 # cropped_flow =[]
 # flo_counter=0
 # for flo in flo_paths:
 # 	flow = read_flow(flo)
-
 # 	crop_flo = flow[10:10+416, 304:304+416,:]
-
 # 	cropped_flow.append(crop_flo)
 # 	flo_name = "flo_crop_%d.flo"%(flo_counter)
 # 	cv2.imwrite(flo_name, crop_flo)
 # 	flo_counter = flo_counter +1
 #  	# cv2.imshow("cropped", crop_flo)
 #  	# # cv2.waitKey(0)
-
-
-
 # cropped_flow = np.array(cropped_flow)
-
+##--------------------------------------------
 
 
 
