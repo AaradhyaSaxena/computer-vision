@@ -35,40 +35,66 @@ def return_corr_from_flow(im1, im2, flow):
 
     corr1 =[]
     corr2 =[]
+    s_corr1 =[]
+    s_corr2 =[]
+    samples = 1
+    i=0
 
     for i in range(samples):
 
-        (iy, ix) = np.mgrid[0:image_height, 0:image_width]
-        (fy, fx) = np.mgrid[0:flow_height, 0:flow_width]
-        fx = fx.astype(np.float64)
-        fy = fy.astype(np.float64)
-        fx += flow[i,:,:,0]
-        fy += flow[i,:,:,1]
-        #fx += flow[:,:,0]
-        #fy += flow[:,:,1]
-        #fx=np.clip(fx,0,flow_width)
-        #fy=np.clip(fy,0,flow_height)
-        fx = np.minimum(np.maximum(fx, 0), flow_width)
-        fy = np.minimum(np.maximum(fy, 0), flow_height)
-        fx_new=fx.reshape((fx.shape[0]*fx.shape[1],1))
-        fy_new=fy.reshape((fy.shape[0]*fy.shape[1],1))
-        ix_new=ix.reshape((ix.shape[0]*ix.shape[1],1))
-        iy_new=iy.reshape((iy.shape[0]*iy.shape[1],1))
+        # (iy, ix) = np.mgrid[0:image_height, 0:image_width]
+        # (fy, fx) = np.mgrid[0:flow_height, 0:flow_width]
+        # fx = fx.astype(np.float64)
+        # fy = fy.astype(np.float64)
+        (iys, ixs) = np.mgrid[0:image_height, 0:image_width]
+        (fys, fxs) = np.mgrid[0:flow_height, 0:flow_width]
+        fxs = fxs.astype(np.float64)
+        fys = fys.astype(np.float64)
 
-        points=np.concatenate([ix_new,iy_new],axis=-1)
-        xi=np.concatenate([fx_new,fy_new],axis=-1)
+        # fx += flow[i,:,:,0]
+        # fy += flow[i,:,:,1]
 
-        #points = np.concatenate((ix.reshape(n,1), iy.reshape(n,1)), axis=1)
-        #xi = np.concatenate((fx.reshape(n, 1), fy.reshape(n,1)), axis=1)
-        corr1.append(points)
-        corr2.append(xi)
+        ## scaling flow for better viz
+        scale = 10
+        fxs += scale*flow[i,:,:,0]
+        fys += scale*flow[i,:,:,1]        
+        fxs=np.clip(fxs,0,flow_width)
+        fys=np.clip(fys,0,flow_height)
 
-    corr1 = np.array(corr1)
-    corr2 = np.array(corr2)
+        # fx = np.minimum(np.maximum(fx, 0), flow_width)
+        # fy = np.minimum(np.maximum(fy, 0), flow_height)
 
-    Nn = len(corr1)
+        # fx_new=fx.reshape((n,1))
+        # fy_new=fy.reshape((n,1))
+        # ix_new=ix.reshape((n,1))
+        # iy_new=iy.reshape((n,1))
+        # points=np.concatenate([ix_new,iy_new],axis=-1)
+        # xi=np.concatenate([fx_new,fy_new],axis=-1)
+
+        # points = np.concatenate((ix.reshape(n,1), iy.reshape(n,1)), axis=1)
+        # xi = np.concatenate((fx.reshape(n, 1), fy.reshape(n,1)), axis=1)
+        # corr1.append(points)
+        # corr2.append(xi)
+
+        ###scaled
+        spoints = np.concatenate((ixs.reshape(n,1), iys.reshape(n,1)), axis=1)
+        sxi = np.concatenate((fxs.reshape(n, 1), fys.reshape(n,1)), axis=1)
+        s_corr1.append(spoints)
+        s_corr2.append(sxi)
+
+    # corr1 = np.array(corr1)
+    # corr2 = np.array(corr2)
+
+    ###scaled
+    s_corr1 = np.array(s_corr1)
+    s_corr2 = np.array(s_corr2)
+
+
+    # Nn = len(corr1)
+    Nn = len(s_corr1)
     for i in range(Nn):
-        e = essential_matrix(corr1[i],corr2[i])
+        # e = essential_matrix(corr1[i],corr2[i])
+        e = essential_matrix(s_corr1[i],s_corr2[i])
         essentialMatrix.append(e)
         tvecs.append(returnT_fromE(e))
         rvecs.append(returnR1_fromE(e))
@@ -80,15 +106,20 @@ def return_corr_from_flow(im1, im2, flow):
         r = rvecs[i]
         d = []
         q = 436
+
         for j in range(int(n/q)):
             print(i,j)
-            selec1 = corr1[i,j*(q):(j+1)*q,:]
-            selec2 = corr2[i,j*(q):(j+1)*q,:]
+            # selec1 = corr1[i,j*(q):(j+1)*q,:]
+            # selec2 = corr2[i,j*(q):(j+1)*q,:]
+            selec1 = s_corr1[i,j*(q):(j+1)*q,:]
+            selec2 = s_corr2[i,j*(q):(j+1)*q,:]
             d.append(return_depth(selec1,selec2,r,t))
 
         if(n%q!= 0):
-            selec1 = corr1[i,(n/q)*q:(n/q)*q+(n%q),:]
-            selec2 = corr2[i,(n/q)*q:(n/q)*q+(n%q),:]       
+            # selec1 = corr1[i,(n/q)*q:(n/q)*q+(n%q),:]
+            # selec2 = corr2[i,(n/q)*q:(n/q)*q+(n%q),:]
+            selec1 = s_corr1[i,(n/q)*q:(n/q)*q+(n%q),:]
+            selec2 = s_corr2[i,(n/q)*q:(n/q)*q+(n%q),:]              
             d.append(return_depth(selec1,selec2,r,t))
 
         depth.append(d)
@@ -96,7 +127,7 @@ def return_corr_from_flow(im1, im2, flow):
     depth = np.array(depth)
     # depth = depth.T
     ## depth = depth.reshape((samples,image_width,image_height+1,1))
-    depth = (depth +1)/2
+    # depth = (depth +1)/2
 
     return depth,essentialMatrix,tvecs,rvecs,corr1,corr2
 
