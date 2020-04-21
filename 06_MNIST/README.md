@@ -23,6 +23,17 @@ Following is a submission on Digit recognizer competition:
                - 2conv-64n-1dense; 2conv-64n-2dense; 2conv-128n-1dense; 2conv-128n-2dense;
                - 2conv-64n-1d: performs the best;
                - but it looks like that 2conv-64n-2d: also might perform better on increasing the number of epochs.
-
+          - Again, I loop over conv_layer= [2, 3], layer_size= [64,128], and dense_layer= [1,2,3] but this time with 16 epochs.
+          - Initially we had a doubt that 3conv layer might perform better on increasing the number of epochs, it is now rejected as the 3conv layer model still performs poorly compared to the 2conv layer model.
+          - We observe that 3 dense layer also performs poorly. 1 or 2 dense layers are enough to find relation between the spatial features recognized by the conv layers.
+          - We are again are left with 4 models to compare:
+               o 2conv-64n-1dense; 2conv-64n-2dense; 2conv-128n-1dense; 2conv-128n-2dense;
+               o Order of Val loss:
+               o 2conv-128n-2dense> 2conv-64n-2dense> 2conv-128n-1dense>~ 2conv-64n-1dense
+           - Now we are convinced that 2 conv layers are better compared to 1 and 3 conv layers. Also 32 filters are not sufficient.
+           - 2conv-128n-1dense and 2conv-64n-1dense emerge as the better models.
+           - Until now we were using 3x3 filter, again trying 2conv-128n-1dense and 2conv-64n-1dense with 5x5 layers.
+           - 2conv-128n-(5x5)-1dense outperforms all other tested models.
+On submission the model gives an accuracy of 98.771%
 
 
