@@ -1,3 +1,4 @@
+# import libraries
 import cv2 as cv
 import argparse
 import sys
@@ -92,7 +93,7 @@ def postprocess(frame, outs):
         drawPred(classIds[i], confidences[i], left, top, left + width, top + height)
 
 # Process inputs
-winName = 'Deep learning object detection in OpenCV'
+winName = 'object detection'
 cv.namedWindow(winName, cv.WINDOW_NORMAL)
 
 outputFile = "yolo_out_py.avi"
