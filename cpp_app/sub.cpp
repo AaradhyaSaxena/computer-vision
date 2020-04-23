@@ -1,8 +1,6 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>
 #include <iostream>
-#include <include.h>
-#include <exit.h>
 
 using namespace std;
 using namespace cv;
@@ -79,8 +77,8 @@ int main(){
 		split(frame, planes);  // planes[2] is the red channel
 
 		Mat final;
-		final = plane[2].clone();
-		GaussianBlur(plane[2], final, Size( 7, 7 ), 0, 0 );
+		final = planes[2].clone();
+		GaussianBlur(planes[2], final, Size( 7, 7 ), 0, 0 );
 		
 		oVideoWriter.write(final); 
 
