@@ -1,4 +1,5 @@
-#include "opencv2/opencv.hpp"
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc.hpp>
 #include <iostream>
 #include <include.h>
 #include <exit.h>
@@ -55,7 +56,7 @@ int main(){
     int frames_per_second = 10;
 
     //Create and initialize the VideoWriter object 
-    VideoWriter oVideoWriter("D:/MyVideo.avi", VideoWriter::fourcc('M', 'J', 'P', 'G'),
+    VideoWriter oVideoWriter("./MyVideo.avi", VideoWriter::fourcc('M', 'J', 'P', 'G'),
     						frames_per_second, frame_size, true); 
     
     //If the VideoWriter object is not initialized successfully, exit the program
