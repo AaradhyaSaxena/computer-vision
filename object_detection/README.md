@@ -45,5 +45,3 @@ Most of these bounding boxes are eliminated because their confidence is low or b
    
    - Finally, we draw the boxes that were filtered through the non maximum suppression, on the input frame with their assigned class label and confidence scores.
    
-
-![Watch the video](object_detection/yolo_out_py.avi)
