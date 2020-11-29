@@ -7,7 +7,7 @@ A C++ application which can:
    - d. Add a gaussian filter to these frames. 
    - e. Store this video on the disk. 
    - f. Show a list of videos recorded in such a way. 
-   - g. Create a final executable that can run, both, on Windows and Linux 
+   - g. Create a final executable that can run on Windows. 
  
  
 usename = admin <br/>

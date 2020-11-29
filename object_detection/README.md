@@ -44,3 +44,4 @@ Most of these bounding boxes are eliminated because their confidence is low or b
    - The boxes with their confidence equal to or greater than the confidence threshold are then subjected to Non Maximum Suppression. This would reduce the number of overlapping boxes. The Non Maximum Suppression is controlled by the nmsThreshold parameter. 
    
    - Finally, we draw the boxes that were filtered through the non maximum suppression, on the input frame with their assigned class label and confidence scores.
+   
